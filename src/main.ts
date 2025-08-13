@@ -28,7 +28,6 @@ class ThreeJSApp {
     const geometry = new THREE.BoxGeometry()
     const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 })
     this.cube = new THREE.Mesh(geometry, material)
-    // this.scene.add(this.cube)
     const heds = this.createHEDS()
 
 
@@ -49,7 +48,6 @@ class ThreeJSApp {
 
 
     const bruh = new THREE.Mesh(this.setFromHEDS(heds), material)
-    // this.scene.add(bruh);
 
     this.halfEdgeVisualiser.visualise();
     this.scene.add(this.light);
@@ -68,7 +66,6 @@ class ThreeJSApp {
     const geometry = new THREE.BoxGeometry()
     const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
     this.cube = new THREE.Mesh(geometry, material)
-    // this.scene.add(this.cube)
   }
 
   private createHEDS(): HalfedgeDS {
@@ -90,7 +87,6 @@ class ThreeJSApp {
 
     positions.set(flatPositions)
 
-    // Index array faces
     let indices = new Array<number>();
 
     HEDS.faces.forEach(face => {
@@ -107,9 +103,6 @@ class ThreeJSApp {
 
   private animate(): void {
     requestAnimationFrame(this.animate.bind(this))
-
-    // this.cube.rotation.x += 0.01
-    // this.cube.rotation.y += 0.01
     this.controls.update()
     this.renderer.render(this.scene, this.camera)
   }
