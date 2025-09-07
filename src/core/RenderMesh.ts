@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { LogicalMesh } from './LogicalMesh';
-import { HalfedgeDS, Face, Vertex } from 'three-mesh-halfedge';
 import Queries from '../services/Queries';
 
 export class RenderMesh {
@@ -24,6 +23,6 @@ export class RenderMesh {
         geom.computeVertexNormals();
         
         // Flag updates
-        (geom.attributes.position as any).needsUpdate = true;
+        (geom.attributes.position as THREE.BufferAttribute).needsUpdate = true;
     }
 }

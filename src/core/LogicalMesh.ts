@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { HalfedgeDS, Face, Vertex, Halfedge } from 'three-mesh-halfedge';
+import { HalfedgeDS} from 'three-mesh-halfedge';
 
 export class LogicalMesh {
     public struct: HalfedgeDS;

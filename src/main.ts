@@ -47,8 +47,6 @@ class ThreeJSApp {
     this.halfEdgeVisualiser = new HalfEdgeVisualiser(this.scene, heds);
 
 
-    const bruh = new THREE.Mesh(this.setFromHEDS(heds), material)
-
     this.halfEdgeVisualiser.visualise();
     this.scene.add(this.light);
   }
@@ -77,8 +75,8 @@ class ThreeJSApp {
 
   private setFromHEDS(HEDS: HalfedgeDS): THREE.BufferGeometry {
 
-    let flatPositions = new Array<number>();
-    let positions = new Float32Array(HEDS.vertices.length * 3);
+    const flatPositions = new Array<number>();
+    const positions = new Float32Array(HEDS.vertices.length * 3);
     HEDS.vertices.forEach(vertex => {
       flatPositions.push(vertex.position.x);
       flatPositions.push(vertex.position.y);
@@ -87,7 +85,7 @@ class ThreeJSApp {
 
     positions.set(flatPositions)
 
-    let indices = new Array<number>();
+    const indices = new Array<number>();
 
     HEDS.faces.forEach(face => {
       for (const HE of face.halfedge.nextLoop()) {
@@ -95,7 +93,7 @@ class ThreeJSApp {
       }
     });
 
-    let obj = new THREE.BufferGeometry();
+    const obj = new THREE.BufferGeometry();
     obj.setAttribute("position", new THREE.BufferAttribute(positions, 3));
     obj.setIndex(new THREE.BufferAttribute(new Uint16Array(indices), 1));
     return obj;

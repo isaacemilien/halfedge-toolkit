@@ -1,7 +1,5 @@
 import * as THREE from 'three';
-import { Halfedge } from "three-mesh-halfedge"
 import { HalfedgeDS } from "three-mesh-halfedge"
-import { Vertex } from "three-mesh-halfedge"
 
 export class HalfEdgeVisualiser {
   private scene: THREE.Scene;

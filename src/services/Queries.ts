@@ -7,7 +7,7 @@ class Queries {
      */
     getFaceVertices(face: Face): Vertex[] {
         const vertices: Vertex[] = [];
-        let start = face.halfedge;
+        const start = face.halfedge;
         let edge = start;
 
         do {

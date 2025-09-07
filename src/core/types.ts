@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { HalfedgeDS, Vertex, Halfedge, Face} from 'three-mesh-halfedge';
+import { Vertex, Halfedge, Face} from 'three-mesh-halfedge';
 import { RenderMesh } from './RenderMesh';
 import { LogicalMesh } from './LogicalMesh';
 
