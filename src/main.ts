@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 import './style.css'
-import { HalfedgeDS } from 'three-mesh-halfedge'
+import { HalfedgeDS, Vertex} from 'three-mesh-halfedge'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { splitEdge } from './edgeSplit';
+// import { splitEdge } from './edgeSplit';
 import { HalfEdgeVisualiser } from './HalfEdgeVisualiser';
 
 class ThreeJSApp {
@@ -15,6 +15,7 @@ class ThreeJSApp {
   private halfEdgeVisualiser: HalfEdgeVisualiser;
 
   constructor() {
+    // Default
     this.scene = new THREE.Scene()
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
     this.renderer = new THREE.WebGLRenderer()
@@ -22,27 +23,48 @@ class ThreeJSApp {
     this.light = new THREE.AmbientLight()
 
     this.init()
-    this.createCube()
     this.animate()
-
+    
+    
+    
+    
+    this.createCube()
     const geometry = new THREE.BoxGeometry()
     const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 })
     this.cube = new THREE.Mesh(geometry, material)
     const heds = this.createHEDS()
 
+    // Splitting edge
+    // const heToSplit = heds.halfedges[1]
+    // const pos1 = heToSplit.vertex.position;
+    // const pos2 = heToSplit.twin.vertex.position;
 
-    const heToSplit = heds.halfedges[1]
-    const pos1 = heToSplit.vertex.position;
-    const pos2 = heToSplit.twin.vertex.position;
+    // const midpoint = new THREE.Vector3(
+    //   (pos1.x + pos2.x) / 2, 
+    //   (pos1.y + pos2.y) / 2, 
+    //   (pos1.z + pos2.z) / 2)
 
-    const midpoint = new THREE.Vector3(
-      (pos1.x + pos2.x) / 2, 
-      (pos1.y + pos2.y) / 2, 
-      (pos1.z + pos2.z) / 2)
+    // console.log(midpoint);
 
-    console.log(midpoint);
+    // splitEdge(heds, heToSplit, midpoint);
 
-    splitEdge(heds, heToSplit, midpoint);
+
+    // Extrude face
+
+    // Isolate face
+    const faceToExtrude = heds.faces[0]
+    
+    const start = faceToExtrude.halfedge;
+    const vertices: Vertex[] = [];
+
+    for (const he of start.nextLoop()) {
+        vertices.push(he.vertex);
+    }
+
+    console.log(vertices);
+
+
+
 
     this.halfEdgeVisualiser = new HalfEdgeVisualiser(this.scene, heds);
 
