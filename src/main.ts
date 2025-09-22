@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import './style.css'
-import { HalfedgeDS, Vertex} from 'three-mesh-halfedge'
+import { HalfedgeDS, Vertex, Halfedge} from 'three-mesh-halfedge'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 // import { splitEdge } from './edgeSplit';
 import { HalfEdgeVisualiser } from './HalfEdgeVisualiser';
@@ -26,42 +26,35 @@ class ThreeJSApp {
     this.animate()
     
     
-    
-    
     this.createCube()
     const geometry = new THREE.BoxGeometry()
     const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 })
     this.cube = new THREE.Mesh(geometry, material)
     const heds = this.createHEDS()
-
-    // Splitting edge
-    // const heToSplit = heds.halfedges[1]
-    // const pos1 = heToSplit.vertex.position;
-    // const pos2 = heToSplit.twin.vertex.position;
-
-    // const midpoint = new THREE.Vector3(
-    //   (pos1.x + pos2.x) / 2, 
-    //   (pos1.y + pos2.y) / 2, 
-    //   (pos1.z + pos2.z) / 2)
-
-    // console.log(midpoint);
-
-    // splitEdge(heds, heToSplit, midpoint);
-
-
     // Extrude face
 
-    // Isolate face
+    // Identify
     const faceToExtrude = heds.faces[0]
     
     const start = faceToExtrude.halfedge;
-    const vertices: Vertex[] = [];
+    const V_old: Vertex[] = [];
+    const E_old: Halfedge[] = [];
 
     for (const he of start.nextLoop()) {
-        vertices.push(he.vertex);
+      V_old.push(he.vertex);
+      E_old.push(he);
     }
 
-    console.log(vertices);
+    // Duplicate
+    const V_new: Vertex[] = [];
+    // const E_new: Halfedge[] = [];
+
+    for (const v of V_old){
+      const duplicateV = new Vertex();
+      duplicateV.position.copy(v.position);
+      V_new.push(duplicateV)
+    }
+
 
 
 
