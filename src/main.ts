@@ -1,15 +1,14 @@
 import * as THREE from 'three'
 import './style.css'
-import { HalfedgeDS, Vertex, Halfedge} from 'three-mesh-halfedge'
+import { HalfedgeDS } from 'three-mesh-halfedge'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-// import { splitEdge } from './edgeSplit';
 import { HalfEdgeVisualiser } from './HalfEdgeVisualiser';
+import { parseOBJToHalfedge } from './services/objLoader';
 
 class ThreeJSApp {
   private scene: THREE.Scene
   private camera: THREE.PerspectiveCamera
   private renderer: THREE.WebGLRenderer
-  private cube: THREE.Mesh
   private controls: OrbitControls
   private light: THREE.AmbientLight
   private halfEdgeVisualiser: HalfEdgeVisualiser;
@@ -24,44 +23,31 @@ class ThreeJSApp {
 
     this.init()
     this.animate()
-    
-    
-    this.createCube()
-    const geometry = new THREE.BoxGeometry()
-    const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 })
-    this.cube = new THREE.Mesh(geometry, material)
-    const heds = this.createHEDS()
-    // Extrude face
 
-    // Identify
-    const faceToExtrude = heds.faces[0]
-    
-    const start = faceToExtrude.halfedge;
-    const V_old: Vertex[] = [];
-    const E_old: Halfedge[] = [];
+    const heds = new HalfedgeDS();
 
-    for (const he of start.nextLoop()) {
-      V_old.push(he.vertex);
-      E_old.push(he);
-    }
+    const objText = `
+      v 4.726442 1.000000 -1.000000
+      v 4.726442 -1.000000 -1.000000
+      v 4.726442 1.000000 1.000000
+      v 4.726442 -1.000000 1.000000
+      v -4.726442 1.000000 -1.000000
+      v -4.726442 -1.000000 -1.000000
+      v -4.726442 1.000000 1.000000
+      v -4.726442 -1.000000 1.000000
+      f 1/1/1 5/2/1 7/3/1 3/4/1
+      f 4/5/2 3/4/2 7/6/2 8/7/2
+      f 8/8/3 7/9/3 5/10/3 6/11/3
+      f 6/12/4 2/13/4 4/5/4 8/14/4
+      f 2/13/5 1/1/5 3/4/5 4/5/5
+      f 6/11/6 5/10/6 1/1/6 2/13/6
+    `
 
-    // Duplicate
-    const V_new: Vertex[] = [];
-    // const E_new: Halfedge[] = [];
+    parseOBJToHalfedge(heds, objText)
 
-    for (const v of V_old){
-      const duplicateV = new Vertex();
-      duplicateV.position.copy(v.position);
-      V_new.push(duplicateV)
-    }
-
-
-
-
+    console.log(heds.faces);
 
     this.halfEdgeVisualiser = new HalfEdgeVisualiser(this.scene, heds);
-
-
     this.halfEdgeVisualiser.visualise();
     this.scene.add(this.light);
   }
@@ -73,19 +59,6 @@ class ThreeJSApp {
     this.camera.position.z = 5
 
     window.addEventListener('resize', this.onWindowResize.bind(this))
-  }
-
-  private createCube(): void {
-    const geometry = new THREE.BoxGeometry()
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
-    this.cube = new THREE.Mesh(geometry, material)
-  }
-
-  private createHEDS(): HalfedgeDS {
-    const HEDS = new HalfedgeDS();
-
-    HEDS.setFromGeometry(this.cube.geometry);
-    return HEDS;
   }
 
   private setFromHEDS(HEDS: HalfedgeDS): THREE.BufferGeometry {
