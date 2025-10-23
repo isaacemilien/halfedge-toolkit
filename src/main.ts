@@ -5,6 +5,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { HalfEdgeVisualiser } from './HalfEdgeVisualiser';
 import { parseOBJToHalfedge } from './services/objLoader';
 import { extrudeFace } from './services/extrudeFace';
+import { insetFace } from './services/insetFace';
 
 class ThreeJSApp {
   private scene: THREE.Scene
@@ -47,6 +48,7 @@ class ThreeJSApp {
     parseOBJToHalfedge(heds, objText)
 
     extrudeFace(heds, heds.faces[0], new THREE.Vector3(0, 1, 0), 5, 2);
+    insetFace(heds, heds.faces[0], 1, 1);
 
     this.halfEdgeVisualiser = new HalfEdgeVisualiser(this.scene, heds);
     this.halfEdgeVisualiser.visualise();
