@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Halfedge Toolkit - Extrude and Inset Face Documentation</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: monospace;
+      line-height: 1.5;
+      color: #000;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1rem;
+      background: #fff;
+      font-size: 14px;
+    }
+    header {
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #ccc;
+    }
+    h1 {
+      font-weight: normal;
+      font-size: 1.5rem;
+    }
+    .card {
+      margin-bottom: 1.5rem;
+    }
+    h2 {
+      font-weight: normal;
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+      color: #000;
+    }
+    h3 {
+      font-weight: normal;
+      font-size: 1.1rem;
+      margin: 1rem 0 0.5rem;
+    }
+    p {
+      margin-bottom: 0.8rem;
+    }
+    ul, ol {
+      margin: 0.8rem 0 0.8rem 1.2rem;
+    }
+    li {
+      margin-bottom: 0.4rem;
+    }
+    .parameters {
+      margin: 0.8rem 0;
+      padding-left: 1rem;
+    }
+    .parameter-name {
+      font-weight: bold;
+    }
+    code {
+      font-family: monospace;
+      background: #f0f0f0;
+      padding: 0.1rem 0.3rem;
+    }
+    pre {
+      background: #f0f0f0;
+      padding: 0.8rem;
+      overflow-x: auto;
+      margin: 0.8rem 0;
+    }
+    .diagram-container {
+      margin: 1rem 0;
+      padding: 0.5rem;
+      background: #f8f8f8;
+      text-align: center;
+    }
+    .diagram-placeholder {
+      display: inline-block;
+      width: 200px;
+      height: 100px;
+      background: #e0e0e0;
+      line-height: 100px;
+      color: #666;
+      font-style: italic;
+    }
+    @media (max-width: 600px) {
+      body {
+        padding: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Halfedge Toolkit</h1>
+  </header>
+
+  <main>
+    <div class="card">
+      <h2>extrudeFace</h2>
+      <p>
+        Extends a face along a direction vector by a given distance. Creates new geometry 
+        forming a prism-like shape. The original face is removed.
+      </p>
+
+      <h3>Signature</h3>
+      <pre>extrudeFace(struct, face, direction, distance, tolerance)</pre>
+
+      <h3>Parameters</h3>
+      <div class="parameters">
+        <p><span class="parameter-name">struct</span>: HalfedgeDS - The halfedge data structure</p>
+        <p><span class="parameter-name">face</span>: Face - The face to extrude</p>
+        <p><span class="parameter-name">direction</span>: Vector3 - Extrusion direction (normalized internally)</p>
+        <p><span class="parameter-name">distance</span>: Number - Extrusion distance</p>
+        <p><span class="parameter-name">tolerance</span>: Number - Vertex position comparison tolerance (default: 1e-10)</p>
+      </div>
+
+      <h3>Returns</h3>
+      <div class="parameters">
+        <p><span class="parameter-name">topFace</span>: Face - The new extruded top face</p>
+        <p><span class="parameter-name">sideFaces</span>: Face[] - New side faces created</p>
+        <p><span class="parameter-name">newVertices</span>: Vertex[] - New vertices created during extrusion</p>
+      </div>
+
+      <h3>Process</h3>
+      <ol>
+        <li>Duplicate face vertices and offset along normalized direction vector</li>
+        <li>Create new top face from duplicated vertices</li>
+        <li>Create side faces connecting original face to new top face</li>
+        <li>Remove original face from mesh</li>
+      </ol>
+
+      <div class="diagram-container">
+        <div class="diagram-placeholder">Extrude diagram</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>insetFace</h2>
+      <p>
+        Creates a smaller face inside the original by moving vertices inward toward 
+        the face centroid. Forms a recessed area. The original face is removed.
+      </p>
+
+      <h3>Signature</h3>
+      <pre>insetFace(struct, face, distance, tolerance)</pre>
+
+      <h3>Parameters</h3>
+      <div class="parameters">
+        <p><span class="parameter-name">struct</span>: HalfedgeDS - The halfedge data structure</p>
+        <p><span class="parameter-name">face</span>: Face - The face to inset</p>
+        <p><span class="parameter-name">distance</span>: Number - Inset distance (vertices move toward centroid)</p>
+        <p><span class="parameter-name">tolerance</span>: Number - Vertex position comparison tolerance (default: 1e-10)</p>
+      </div>
+
+      <h3>Returns</h3>
+      <div class="parameters">
+        <p><span class="parameter-name">insetFace</span>: Face - The new inset face</p>
+        <p><span class="parameter-name">sideFaces</span>: Face[] - New side faces created</p>
+        <p><span class="parameter-name">newVertices</span>: Vertex[] - New vertices created during inset</p>
+      </div>
+
+      <h3>Process</h3>
+      <ol>
+        <li>Compute face centroid</li>
+        <li>Move each vertex toward centroid by inset distance</li>
+        <li>Create new inset face from new vertices</li>
+        <li>Create side faces connecting original face to inset face</li>
+        <li>Remove original face from mesh</li>
+      </ol>
+
+      <div class="diagram-container">
+        <div class="diagram-placeholder">Inset diagram</div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
