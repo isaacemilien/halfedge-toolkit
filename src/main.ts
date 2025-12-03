@@ -46,9 +46,11 @@ class ThreeJSApp {
     `
 
     parseOBJToHalfedge(heds, objText)
+    console.log("before", heds.halfedges);
 
     extrudeFace(heds, heds.faces[0], new THREE.Vector3(0, 1, 0), 5, 2);
-    insetFace(heds, heds.faces[0], 1, 1);
+    console.log("after", heds.halfedges);
+    // insetFace(heds, heds.faces[0], 1, 1);
 
     this.halfEdgeVisualiser = new HalfEdgeVisualiser(this.scene, heds);
     this.halfEdgeVisualiser.visualise();

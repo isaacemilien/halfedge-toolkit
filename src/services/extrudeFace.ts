@@ -1,7 +1,7 @@
 /*
  * Extrudes a face along a direction vector by a given distance.
  * The original face is removed and replaced with new geometry.
- * 
+ *
  * @param struct - The halfedge data structure
  * @param face - The face to extrude
  * @param direction - The direction vector for extrusion (will be normalized)
@@ -11,8 +11,7 @@
  */
 
 import { Vector3 } from 'three';
-import { HalfedgeDS, Vertex, Halfedge, Face } from 'three-mesh-halfedge'
-
+import { HalfedgeDS, Vertex, Halfedge, Face } from 'three-mesh-halfedge';
 
 export interface ExtrusionResult {
     topFace: Face;
@@ -36,18 +35,21 @@ export function extrudeFace(
     const extrudeDir = direction.clone().normalize();
     const offset = extrudeDir.multiplyScalar(distance);
 
-    // Collect all vertices of the face in order
+    // Collect all vertices and boundary halfedges of the face in order
     const originalVertices: Vertex[] = [];
     const originalHalfedges: Halfedge[] = [];
-
     for (const he of face.halfedge.nextLoop()) {
         originalVertices.push(he.vertex);
         originalHalfedges.push(he);
     }
 
     const n = originalVertices.length;
+    if (n < 3) {
+        throw new Error('Cannot extrude a face with fewer than 3 vertices');
+    }
 
-    // Create new vertices at extruded positions
+    // Create new vertices, top ring and vertical half-edges
+
     const newVertices: Vertex[] = [];
     for (const vertex of originalVertices) {
         const newPos = vertex.position.clone().add(offset);
@@ -55,35 +57,65 @@ export function extrudeFace(
         newVertices.push(newVertex);
     }
 
-    // Create the top face
     const topHalfedges: Halfedge[] = [];
+    const topHalfedgesTwin: Halfedge[] = [];
 
     for (let i = 0; i < n; i++) {
         const v1 = newVertices[i];
         const v2 = newVertices[(i + 1) % n];
 
-        // Create halfedge from v1 to v2
-        const he = new Halfedge(v1);
-        const heTwin = new Halfedge(v2);
+        const he = new Halfedge(v1);  // v1 -> v2
+        const heTwin = new Halfedge(v2); // v2 -> v1
 
         he.twin = heTwin;
         heTwin.twin = he;
 
         topHalfedges.push(he);
+        topHalfedgesTwin.push(heTwin);
 
-        struct.halfedges.push(he);
-        struct.halfedges.push(heTwin);
+        struct.halfedges.push(he, heTwin);
 
-        // Update vertex reference if needed
         if (!v1.halfedge) {
             v1.halfedge = he;
         }
     }
 
-    // Connect the top halfedges in a loop
+    const verticalUp: Halfedge[] = [];    
+    const verticalDown: Halfedge[] = []; 
+
     for (let i = 0; i < n; i++) {
-        topHalfedges[i].next = topHalfedges[(i + 1) % n];
-        topHalfedges[i].prev = topHalfedges[(i - 1 + n) % n];
+        const vBottom = originalVertices[i];
+        const vTop = newVertices[i];
+
+        const heUp = new Halfedge(vBottom); 
+        const heDown = new Halfedge(vTop); 
+
+        heUp.twin = heDown;
+        heDown.twin = heUp;
+
+        verticalUp.push(heUp);
+        verticalDown.push(heDown);
+
+        struct.halfedges.push(heUp, heDown);
+
+        if (!vTop.halfedge) {
+            vTop.halfedge = heDown;
+        }
+        // Update bottom vertex reference free 
+        if (!vBottom.halfedge) {
+            vBottom.halfedge = heUp;
+        }
+    }
+
+    // Wire new top face
+    // Connect top halfedges loop
+    for (let i = 0; i < n; i++) {
+        const he = topHalfedges[i];
+        const heNext = topHalfedges[(i + 1) % n];
+        const hePrev = topHalfedges[(i - 1 + n) % n];
+
+        he.next = heNext;
+        he.prev = hePrev;
     }
 
     // Create the top face
@@ -94,77 +126,57 @@ export function extrudeFace(
         he.face = topFace;
     }
 
-    // Create side faces connecting original vertices to new vertices
+    // Create side faces using existing half-edges
     const sideFaces: Face[] = [];
 
     for (let i = 0; i < n; i++) {
+
         const v0 = originalVertices[i];
         const v1 = originalVertices[(i + 1) % n];
         const v2 = newVertices[(i + 1) % n];
         const v3 = newVertices[i];
 
-        // Create a quad face: v0 -> v1 -> v2 -> v3 -> v0
+        const heBottom = originalHalfedges[i];       // v0 -> v1
+        const heRight = verticalUp[(i + 1) % n];     // v1 -> v2
+        const heTop = topHalfedgesTwin[i];           // v2 -> v3
+        const heLeft = verticalDown[i];              // v3 -> v0
 
-        // Halfedge from v0 to v1
-        const he01 = originalHalfedges[i];
+        heBottom.next = heRight;
+        heRight.next = heTop;
+        heTop.next = heLeft;
+        heLeft.next = heBottom;
 
-        // Halfedge from v1 to v2 
-        const he12 = new Halfedge(v1);
-        const he12Twin = new Halfedge(v2);
-        he12.twin = he12Twin;
-        he12Twin.twin = he12;
-
-        // Halfedge from v2 to v3
-        const he23 = topHalfedges[i].twin;
-
-        // Halfedge from v3 to v0
-        const he30 = new Halfedge(v3);
-        const he30Twin = new Halfedge(v0);
-        he30.twin = he30Twin;
-        he30Twin.twin = he30;
-
-        // Connect the side face loop
-        he01.next = he12;
-        he12.next = he23;
-        he23.next = he30;
-        he30.next = he01;
-
-        he01.prev = he30;
-        he12.prev = he01;
-        he23.prev = he12;
-        he30.prev = he23;
+        heBottom.prev = heLeft;
+        heRight.prev = heBottom;
+        heTop.prev = heRight;
+        heLeft.prev = heTop;
 
         // Create the side face
-        const sideFace = new Face(he01);
+        const sideFace = new Face(heBottom);
         sideFaces.push(sideFace);
         struct.faces.push(sideFace);
 
-        he01.face = sideFace;
-        he12.face = sideFace;
-        he23.face = sideFace;
-        he30.face = sideFace;
+        heBottom.face = sideFace;
+        heRight.face = sideFace;
+        heTop.face = sideFace;
+        heLeft.face = sideFace;
 
-        // Add new halfedges to structure
-        struct.halfedges.push(he12);
-        struct.halfedges.push(he12Twin);
-        struct.halfedges.push(he30);
-        struct.halfedges.push(he30Twin);
-
-        // Update vertex references
-        if (!v1.halfedge || v1.halfedge === he01) {
-            v1.halfedge = he12;
+        // Refresh vertex .halfedge pointers 
+        if (!v1.halfedge) {
+            v1.halfedge = heRight;
         }
         if (!v3.halfedge) {
-            v3.halfedge = he30;
+            v3.halfedge = heLeft;
         }
     }
 
-    // Remove the original face
+    // Remove original face
+
     struct.removeFace(face);
 
     return {
         topFace,
         sideFaces,
-        newVertices
+        newVertices,
     };
 }
