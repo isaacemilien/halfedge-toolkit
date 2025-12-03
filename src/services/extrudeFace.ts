@@ -131,9 +131,7 @@ export function extrudeFace(
 
     for (let i = 0; i < n; i++) {
 
-        const v0 = originalVertices[i];
         const v1 = originalVertices[(i + 1) % n];
-        const v2 = newVertices[(i + 1) % n];
         const v3 = newVertices[i];
 
         const heBottom = originalHalfedges[i];       // v0 -> v1
