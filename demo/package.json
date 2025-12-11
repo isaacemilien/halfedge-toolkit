@@ -1,5 +1,5 @@
 {
-  "name": "halfedge-toolkit-demo",
+  "name": "three-mesh-edit-demo",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -10,7 +10,7 @@
   "dependencies": {
     "three": "^0.160.0",
     "three-mesh-halfedge": "^1.0.0",
-    "halfedge-toolkit": "file:.."
+    "three-mesh-edit": "file:.."
   },
   "devDependencies": {
     "vite": "^6.3.5",

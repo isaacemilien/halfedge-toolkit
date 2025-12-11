@@ -1,9 +1,8 @@
 {
-  "name": "halfedge-toolkit",
+  "name": "three-mesh-edit",
   "version": "0.0.0",
   "type": "module",
 
-  "description": "Half-edge mesh toolkit",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -13,7 +12,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "package.json"
   ],
 
   "scripts": {
@@ -25,8 +25,7 @@
   },
 
   "peerDependencies": {
-    "three": "^0.160.0",
-    "three-mesh-halfedge": "^1.0.0"
+    "three": "^0.160.0"
   },
 
   "devDependencies": {
@@ -45,6 +44,7 @@
   },
 
   "dependencies": {
-    "tsx": "^4.20.3"
+    "tsx": "^4.20.3",
+    "three-mesh-halfedge": "^1.0.0"
   }
 }

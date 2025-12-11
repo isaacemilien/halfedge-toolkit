@@ -4,8 +4,7 @@ import { HalfedgeDS } from 'three-mesh-halfedge'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { HalfEdgeVisualiser } from './HalfEdgeVisualiser'; 
 
-// Import from your published package
-import { parseOBJToHalfedge, extrudeFace, insetFace } from 'halfedge-toolkit';
+import { parseOBJToHalfedge, extrudeFace, insetFace } from 'three-mesh-edit';
 
 class ThreeJSApp {
   private scene: THREE.Scene
