@@ -25,13 +25,11 @@
     ]
   },
   "include": [
-    "src/**/*",
-    "tests/**/*",
-    "**/*.test.ts",
-    "src/main.ts"
+    "src"
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "demo"
   ]
 }
