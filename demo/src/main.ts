@@ -2,10 +2,11 @@ import * as THREE from 'three'
 import './style.css'
 import { HalfedgeDS } from 'three-mesh-halfedge'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { HalfEdgeVisualiser } from './HalfEdgeVisualiser';
-import { parseOBJToHalfedge } from './services/objLoader';
-import { extrudeFace } from './services/extrudeFace';
-import { insetFace } from './services/insetFace';
+import { HalfEdgeVisualiser } from './HalfEdgeVisualiser';  // ← stays local
+
+import { parseOBJToHalfedge } from '../../src/services/objLoader';
+import { extrudeFace } from '../../src/services/extrudeFace';
+import { insetFace } from '../../src/services/insetFace';
 
 class ThreeJSApp {
   private scene: THREE.Scene
