@@ -4,6 +4,8 @@
 
 Modelling core for [three.js](https://threejs.org/), provides mesh editing operations aiming to preserve manifoldness, using a half-edge representation.
 
+<img src="./images/demo.png"/>
+
 ## Status
 
 > Experimental rough draft, may contain bugs, and may change without notice.
