@@ -70,22 +70,9 @@ class ThreeJSApp {
     window.addEventListener('click', this.onMouseClick);
     window.addEventListener("keydown", (event) => {
       if (event.isComposing || event.keyCode === 69) {
-        if(this.selectedFace != null){
-          const normal = new THREE.Vector3();
-          this.selectedFace.getNormal(normal);
-          normal.normalize();
-          
-          extrudeFace(this.logicalMesh.struct, this.selectedFace, normal, 2)
-          this.renderMesh.updateFrom(this.logicalMesh);
-          this.halfEdgeVisualiser.drawEdges();
-
-	  this.selectedFace = null;
-
-          this.faceHighlightObject.visible = false;
-        }
+	this.callExtrude();
       }
     });
-    
 
     const geometry = new THREE.BufferGeometry();
     const vertices = new Float32Array( [
@@ -104,6 +91,23 @@ class ThreeJSApp {
     this.scene.add(this.faceHighlightObject); 
     this.faceHighlightObject.visible = false;
   }
+
+  private callExtrude(): void{
+    if(this.selectedFace != null){
+      const normal = new THREE.Vector3();
+      this.selectedFace.getNormal(normal);
+      normal.normalize();
+      
+      extrudeFace(this.logicalMesh.struct, this.selectedFace, normal, 2)
+      this.renderMesh.updateFrom(this.logicalMesh);
+      this.halfEdgeVisualiser.drawEdges();
+
+      this.selectedFace = null;
+
+      this.faceHighlightObject.visible = false;
+    }
+  }
+
   private onMouseClick = (event: MouseEvent) => {
     console.log(this.logicalMesh.struct.faces);	
     const rect = this.renderer.domElement.getBoundingClientRect();
