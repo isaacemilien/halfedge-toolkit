@@ -21,12 +21,12 @@ export function getRaycastHit(renderer: THREE.Renderer, camera: THREE.Camera, ra
  */
 
 export function convertFaceToPlane(face: Face): Float32Array {
-  let v0 = face.halfedge.vertex.position;
-  let v1 = face.halfedge.next.vertex.position;
-  let v2 = face.halfedge.next.next.vertex.position;
-  let v3 = face.halfedge.vertex.position;
-  let v4 = face.halfedge.prev.vertex.position;
-  let v5 = face.halfedge.prev.prev.vertex.position;
+  const v0 = face.halfedge.vertex.position;
+  const v1 = face.halfedge.next.vertex.position;
+  const v2 = face.halfedge.next.next.vertex.position;
+  const v3 = face.halfedge.vertex.position;
+  const v4 = face.halfedge.prev.vertex.position;
+  const v5 = face.halfedge.prev.prev.vertex.position;
 
   return new Float32Array([
      v0.x, v0.y, v0.z,
@@ -52,10 +52,10 @@ export function checkHit(point: THREE.Vector3, faces: Face[]): Face | null{
   const epsilon = 1e-6 
 
   for(let i = 0; i < faces.length; i++){
-    let v0: THREE.Vector3 = faces[i].halfedge.vertex.position;
-    let v1: THREE.Vector3 = faces[i].halfedge.next.vertex.position;
-    let v2: THREE.Vector3 = faces[i].halfedge.next.next.vertex.position;
-    let v3: THREE.Vector3 = faces[i].halfedge.next.next.next.vertex.position;
+    const v0: THREE.Vector3 = faces[i].halfedge.vertex.position;
+    const v1: THREE.Vector3 = faces[i].halfedge.next.vertex.position;
+    const v2: THREE.Vector3 = faces[i].halfedge.next.next.vertex.position;
+    const v3: THREE.Vector3 = faces[i].halfedge.next.next.next.vertex.position;
 
     const a = new THREE.Vector3().subVectors(v1, v0);
     const b = new THREE.Vector3().subVectors(v2, v0);
