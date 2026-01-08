@@ -39,7 +39,7 @@ export class HalfEdgeVisualiser {
 
     if (points.length > 0) {
       const geometry = new THREE.BufferGeometry().setFromPoints(points);
-      const material = new THREE.LineBasicMaterial({ color: 0x0000ff });
+      const material = new THREE.LineBasicMaterial({ color: 0x66ff66});
       this.edgeLines = new THREE.LineSegments(geometry, material);
       this.scene.add(this.edgeLines);
     }

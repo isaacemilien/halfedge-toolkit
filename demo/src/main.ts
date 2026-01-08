@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import './style.css'
-import { HalfedgeDS } from 'three-mesh-halfedge'
+import { HalfedgeDS, Face } from 'three-mesh-halfedge'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { HalfEdgeVisualiser } from './HalfEdgeVisualiser'; 
 
@@ -16,6 +16,8 @@ class ThreeJSApp {
   private renderMesh: RenderMesh
   private raycaster: THREE.Raycaster = new THREE.Raycaster();
   private mouse: THREE.Vector2 = new THREE.Vector2();
+  private selectedFace: Face | None;
+  private faceHighlightObject: THREE.Mesh;
 
   constructor() {
     // Default
@@ -53,22 +55,54 @@ class ThreeJSApp {
     this.logicalMesh = new LogicalMesh(heds);
 
     const material = new THREE.MeshStandardMaterial({
-      color: 0xff0000, // Red color
-      roughness: 0.2,  // Lower roughness makes it shinier (0 = mirror, 1 = matte)
-      metalness: 0.9   // High metalness makes it look like metal
-    });
+      color: 0x808080});
 
     this.renderMesh = new RenderMesh(material);
     this.renderMesh.updateFrom(this.logicalMesh);
 
 
-    this.halfEdgeVisualiser.visualise();
+    this.halfEdgeVisualiser.drawEdges();
     this.scene.add(this.light);
     this.scene.add(this.renderMesh.mesh)
 
     
 
     window.addEventListener('click', this.onMouseClick);
+    window.addEventListener("keydown", (event) => {
+      if (event.isComposing || event.keyCode === 69) {
+        if(this.selectedFace != null){
+          const normal = new THREE.Vector3();
+          this.selectedFace.getNormal(normal);
+          normal.normalize();
+          
+          extrudeFace(this.logicalMesh.struct, this.selectedFace, normal, 2)
+          this.renderMesh.updateFrom(this.logicalMesh);
+          this.halfEdgeVisualiser.drawEdges();
+
+	  this.selectedFace = null;
+
+          this.faceHighlightObject.visible = false;
+        }
+      }
+    });
+    
+
+    const geometry = new THREE.BufferGeometry();
+    const vertices = new Float32Array( [
+    	-1.0, -1.0,  1.0, // v0
+    	 1.0, -1.0,  1.0, // v1
+    	 1.0,  1.0,  1.0, // v2
+    	 1.0,  1.0,  1.0, // v3
+    	-1.0,  1.0,  1.0, // v4
+    	-1.0, -1.0,  1.0  // v5
+    ] );
+    // itemSize = 3 because there are 3 values (components) per vertex
+    geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+    const selectionMaterial = new THREE.MeshStandardMaterial( { color: 0xf5e4a9, opacity: 0.5 } );
+    this.faceHighlightObject = new THREE.Mesh( geometry, selectionMaterial );
+
+    this.scene.add(this.faceHighlightObject); 
+    this.faceHighlightObject.visible = false;
   }
   private onMouseClick = (event: MouseEvent) => {
     console.log(this.logicalMesh.struct.faces);	
@@ -79,11 +113,31 @@ class ThreeJSApp {
     this.raycaster.setFromCamera(this.mouse, this.camera);
 
     if(this.raycaster.intersectObject(this.renderMesh.mesh, true).length > 0){
-      this.checkHit(this.raycaster.intersectObject(this.renderMesh.mesh, true)[0].point);
+      this.selectedFace = this.checkHit(this.raycaster.intersectObject(this.renderMesh.mesh, true)[0].point);
+      this.faceHighlightObject.visible = true;
+      const geometry = new THREE.BufferGeometry();
+      let v0 = this.selectedFace.halfedge.vertex.position;
+      let v1 = this.selectedFace.halfedge.next.vertex.position;
+      let v2 = this.selectedFace.halfedge.next.next.vertex.position;
+      let v3 = this.selectedFace.halfedge.vertex.position;
+      let v4 = this.selectedFace.halfedge.prev.vertex.position;
+      let v5 = this.selectedFace.halfedge.prev.prev.vertex.position;
+      console.log(v0);
+
+      const vertices = new Float32Array( [
+	 v0.x, v0.y, v0.z,
+	 v1.x, v1.y, v1.z,
+	 v2.x, v2.y, v2.z,
+	 v5.x, v5.y, v5.z,
+	 v4.x, v4.y, v4.z,
+	 v3.x, v3.y, v3.z,
+      ] );
+
+      this.faceHighlightObject.geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
     }
   };
 
-  private checkHit(point: THREE.Vector3): void {
+  private checkHit(point: THREE.Vector3): Face | null{
 
     const epsilon = 1e-6 
     // const point = new THREE.Vector3(0.7609004637915316, -0.3033319416466239, 1.0000000000000004 )
@@ -107,26 +161,18 @@ class ThreeJSApp {
 
       console.log(Math.abs(d) < epsilon);
 
+      // Check on correct play
       if(Math.abs(d) < epsilon){
-	const normal = new THREE.Vector3();
-	this.logicalMesh.struct.faces[i].getNormal(normal);
-	normal.normalize();
 
 	
 	if(this.pointInQuad(point, v0, v1, v2, v3)){
-		console.log("we should extrude")
-		extrudeFace(this.logicalMesh.struct, this.logicalMesh.struct.faces[i], normal, 1)
+	  return this.logicalMesh.struct.faces[i]
 	}
-	
-
-	
-
-	// break;
       }
     }
 
-    this.renderMesh.updateFrom(this.logicalMesh);
-    this.halfEdgeVisualiser.visualise();
+
+    return
   }
 
     
