@@ -13,3 +13,24 @@ body {
   width: 100vw;
   height: 100vh;
 }
+
+.extrude-hint {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: #ccc;
+  padding: 8px 14px;
+  border-radius: 4px;
+  font-family: system-ui, sans-serif;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.extrude-hint kbd {
+  background: #444;
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin: 0 2px;
+}
