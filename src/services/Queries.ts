@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { HalfedgeDS, Face, Vertex } from 'three-mesh-halfedge';
 
-class Queries {
+export class Queries {
     /**
      * Collects the ordered vertices around a face by traversing its half-edges.
      */
@@ -103,6 +103,39 @@ class Queries {
         return indices;
     }
 
+    pointInTriangle(p: THREE.Vector3, a: THREE.Vector3, b: THREE.Vector3, c: THREE.Vector3): boolean {
+      // Compute vectors
+      const v0 = new THREE.Vector3().subVectors(b, a);
+      const v1 = new THREE.Vector3().subVectors(c, a);
+      const v2 = new THREE.Vector3().subVectors(p, a);
+
+      // Compute dot products
+      const d00 = v0.dot(v0);
+      const d01 = v0.dot(v1);
+      const d11 = v1.dot(v1);
+      const d20 = v2.dot(v0);
+      const d21 = v2.dot(v1);
+
+      // Compute barycentric coordinates
+      const denom = d00 * d11 - d01 * d01;
+      if (Math.abs(denom) < 1e-6) return false; 
+
+      const v = (d11 * d20 - d01 * d21) / denom;
+      const w = (d00 * d21 - d01 * d20) / denom;
+      const u = 1.0 - v - w;
+
+      // Inside if all barycentric coords >= 0
+      return (u >= 0) && (v >= 0) && (w >= 0);
+    }
+
+    public pointInQuad(
+      p: THREE.Vector3,
+      v0: THREE.Vector3,
+      v1: THREE.Vector3,
+      v2: THREE.Vector3,
+      v3: THREE.Vector3
+    ): boolean {
+      return this.pointInTriangle(p, v0, v1, v2) || this.pointInTriangle(p, v0, v2, v3);
+    }
 }
 
-export default new Queries();

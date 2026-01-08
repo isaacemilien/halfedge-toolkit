@@ -1,10 +1,12 @@
 import * as THREE from 'three';
 import { LogicalMesh } from './LogicalMesh';
-import Queries from '../services/Queries';
+import { Queries } from '../services/Queries';
 
 export class RenderMesh {
     public mesh: THREE.Mesh;
     private posAttrName = 'position';
+    private queries = new Queries();
+
     constructor(material: THREE.MeshStandardMaterial) {
         const geom = new THREE.BufferGeometry();
         geom.setAttribute(this.posAttrName, new THREE.BufferAttribute(new Float32Array(), 3));
@@ -13,8 +15,8 @@ export class RenderMesh {
 
     updateFrom(logical: LogicalMesh) {
         // Extract positions and indices from the halfedge structure
-        const positions = Queries.extractPositions(logical.struct);
-        const indices = Queries.extractIndices(logical.struct);
+        const positions = this.queries.extractPositions(logical.struct);
+        const indices = this.queries.extractIndices(logical.struct);
         
         // Update the existing geometry
         const geom = this.mesh.geometry as THREE.BufferGeometry;
